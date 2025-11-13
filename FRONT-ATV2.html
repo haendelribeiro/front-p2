@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Situação do Aluno</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        h1 {
+            color: #1a237e;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #3f51b5;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 5px;
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
+        .input-group {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .input-item {
+            flex-grow: 1;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #555;
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #43a047;
+        }
+        #resultados {
+            margin-top: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        .resultado-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px dotted #eee;
+            font-size: 16px;
+        }
+        .resultado-item span:first-child {
+            font-weight: normal;
+            color: #333;
+        }
+        .resultado-item span:last-child {
+            font-weight: bold;
+        }
+        .text-green { color: #2e7d32; }
+        .text-red { color: #c62828; }
+        .text-yellow { color: #f9a825; }
+        .text-purple { color: #6a1b9a; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <header>
+            <h1>CALCULADORA DE STATUS DO ALUNO</h1>
+            <p style="color: #777; font-size: 14px;">Insira os dados para calcular a situação final.</p>
+        </header>
+
+        <!-- Formulário de Entrada -->
+        <div>
+            
+            <!-- Frequência -->
+            <h2 class="section-title" style="color: #3f51b5;">Frequência</h2>
+            <div class="input-group">
+                <div class="input-item">
+                    <label for="aulas">Aulas Totais</label>
+                    <input type="number" id="aulas" min="0" value="40" title="Total de aulas no semestre">
+                </div>
+                <div class="input-item">
+                    <label for="faltas">Faltas</label>
+                    <input type="number" id="faltas" min="0" value="5" title="Número de faltas do aluno">
+                </div>
+            </div>
+
+            <!-- Notas -->
+            <h2 class="section-title" style="color: #3f51b5;">Notas</h2>
+            <div class="input-group">
+                <div class="input-item">
+                    <label for="p1">1ª Nota</label>
+                    <input type="number" id="p1" min="0" max="10" step="0.1" value="7.5" title="Nota da primeira prova (P1)">
+                </div>
+                <div class="input-item">
+                    <label for="p2">2ª Nota</label>
+                    <input type="number" id="p2" min="0" max="10" step="0.1" value="6.0" title="Nota da segunda prova (P2)">
+                </div>
+            </div>
+            
+            <!-- Nota de Recuperação (Opcional) -->
+            <h2 class="section-title" style="color: #9c27b0;">Nota Complementar (Opcional)</h2>
+            <div class="input-item">
+                <label for="rec">Recuperação</label>
+                <input type="number" id="rec" min="0" max="10" step="0.1" placeholder="Nota da recuperação" title="Se o aluno fez a prova de recuperação">
+            </div>
+
+            <button onclick="calcularSituacao()">
+                CALCULAR SITUAÇÃO
+            </button>
+        </div>
+
+        <!-- Área de Resultados -->
+        <div id="resultados" class="hidden">
+        </div>
+
+    </div>
+
+    <script>
+        function obterValor(id) {
+            return parseFloat(document.getElementById(id).value) || 0;
+        }
+
+        function calcularSituacao() {
+            const aulas = obterValor('aulas');
+            const faltas = obterValor('faltas');
+            const p1 = obterValor('p1');
+            const p2 = obterValor('p2');
+            
+            let rec = parseFloat(document.getElementById('rec').value); 
+            
+            const resultsDiv = document.getElementById('resultados');
+            resultsDiv.classList.remove('hidden');
+            let situacao;
+            let detalhes = [];
+
+            if (aulas <= 0 || faltas < 0 || faltas > aulas) {
+                resultsDiv.innerHTML = `<p style="color: #d32f2f; font-weight: bold; padding: 10px;">Erro de entrada: Verifique se as aulas totais são > 0 e se as faltas são válidas.</p>`;
+                return;
+            }
+
+            if (p1 < 0 || p1 > 10 || p2 < 0 || p2 > 10 || (isNaN(rec) ? false : (rec < 0 || rec > 10))) {
+                resultsDiv.innerHTML = `<p style="color: #d32f2f; font-weight: bold; padding: 10px;">Erro de entrada: As notas (P1, P2 e Rec) devem estar entre 0 e 10.</p>`;
+                return;
+            }
+
+            const presenca = ((aulas - faltas) / aulas) * 100;
+            detalhes.push({ label: "Percentual de Presença", value: presenca.toFixed(2), unit: "%", color: presenca >= 75 ? 'text-green' : 'text-red' });
+            
+            let media = (p1 + p2) / 2;
+            detalhes.push({ label: "Média Parcial (P1+P2)", value: media.toFixed(2), unit: "" });
+
+            let finalRec = isNaN(rec) ? null : rec;
+            let mediaFinal = null;
+
+            if (presenca < 75) {
+                situacao = "Reprovado por Falta";
+                detalhes.push({ label: "Situação Final", value: situacao, color: "text-red" });
+                detalhes.push({ label: "Nota de Recuperação", value: "N/A", color: "" });
+            } else {
+                if (media >= 7) {
+                    situacao = "Aprovado";
+                    detalhes.push({ label: "Situação Final", value: situacao, color: "text-green" });
+                    detalhes.push({ label: "Nota de Recuperação", value: "N/A", color: "" });
+                } 
+                else if (media >= 5) {
+                    
+                    if (finalRec !== null) {
+                        mediaFinal = (media + finalRec) / 2;
+                        
+                        detalhes.push({ label: "Nota Complementar (Recuperação)", value: finalRec.toFixed(1), unit: "" });
+                        detalhes.push({ label: "Média Final (Após Rec.)", value: mediaFinal.toFixed(2), unit: "" });
+
+                        if (mediaFinal >= 5) {
+                            situacao = "Aprovado";
+                            detalhes.push({ label: "Situação Final", value: situacao, color: "text-green" });
+                        } else {
+                            situacao = "Reprovado";
+                            detalhes.push({ label: "Situação Final", value: situacao, color: "text-red" });
+                        }
+                    } else {
+                        situacao = "Em Recuperação";
+                        detalhes.push({ label: "Situação", value: situacao, color: "text-yellow" });
+                        
+                        const notaRecMinima = 10 - media; 
+                        
+                        detalhes.push({ label: "Nota Complementar (Recuperação)", value: "Não Realizada", color: "" });
+
+                        if (notaRecMinima <= 10) {
+                            detalhes.push({ label: "Nota Mínima Necessária na REC", value: notaRecMinima.toFixed(1), color: "text-yellow" });
+                        } else {
+                            detalhes.push({ label: "Nota Mínima Necessária na REC", value: "Reprovação Garantida (Média < 0)", color: "text-red" });
+                        }
+                    }
+
+                } 
+                else {
+                    situacao = "Reprovado por Nota";
+                    detalhes.push({ label: "Situação Final", value: situacao, color: "text-red" });
+                    detalhes.push({ label: "Nota de Recuperação", value: "N/A", color: "" });
+                }
+            }
+
+            let htmlOutput = `<h3 style="font-size: 20px; font-weight: bold; color: #444; margin-bottom: 15px; border-bottom: 1px solid #ddd; padding-bottom: 5px;">RESULTADO COMPLETO</h3>`;
+            htmlOutput += `<ul style="list-style: none; padding: 0;">`;
+
+            detalhes.forEach(item => {
+                let finalValue = item.unit ? `${item.value}${item.unit}` : item.value;
+                htmlOutput += `
+                    <li class="resultado-item">
+                        <span>${item.label}:</span>
+                        <span class="${item.color || ''}">${finalValue}</span>
+                    </li>
+                `;
+            });
+
+            htmlOutput += `</ul>`;
+            resultsDiv.innerHTML = htmlOutput;
+        }
+
+    </script>
+</body>
+</html>
